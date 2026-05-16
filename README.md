@@ -1,26 +1,38 @@
 # API REST - Centro Deportivo 🏋️‍♂️
 
-Este proyecto es una API RESTful desarrollada con Spring Boot para la gestión integral de un Centro Deportivo. Permite administrar usuarios, clases, planes de suscripción y sus respectivas relaciones.
+Este proyecto es una API RESTful desarrollada con Spring Boot para la gestión integral de un Centro Deportivo. Cumple con todos los requisitos de la API 1 (Principal) solicitados en el Trabajo Práctico.
 
 ## 🚀 Tecnologías Utilizadas
 
 * **Java 17**
-* **Spring Boot** (Web, Data JPA)
+* **Spring Boot** (Web, Data JPA, Validation)
+* **Spring Security & JWT** (Autenticación y protección de rutas)
 * **MySQL** (Base de datos relacional)
 * **MapStruct** (Mapeo automático entre Entidades y DTOs)
 * **Lombok** (Reducción de código repetitivo)
-* **Maven** (Gestor de dependencias)
+* **JUnit 5 & Mockito** (Testing unitario)
 
-## 🏗️ Arquitectura
+## 🏗️ Arquitectura y Componentes
 
-El proyecto sigue una arquitectura multicapa estándar de la industria:
-1. **Controladores (`controller`):** Manejan las peticiones HTTP y exponen los endpoints.
-2. **Servicios (`service`):** Contienen toda la lógica de negocio.
-3. **Repositorios (`repository`):** Gestionan la comunicación directa con la base de datos mediante Spring Data JPA.
-4. **DTOs y Mappers:** Se utiliza MapStruct para aislar el modelo de dominio (Entidades) de los datos expuestos hacia el exterior (DTOs), garantizando mayor seguridad.
+El proyecto sigue una arquitectura multicapa estándar:
+* **Controllers:** Manejo de peticiones HTTP (Uso de Body, Path Variables y Query Params).
+* **Services:** Lógica de negocio aislada.
+* **Repositories:** Comunicación con BD y queries personalizadas.
+* **DTOs:** Validaciones implementadas (`@NotBlank`, `@Email`, etc.) para asegurar la integridad de los datos.
 
-## 🛠️ Estado Actual
+## 🗄️ Base de Datos y Relaciones
 
-* Entidad `Usuario` configurada con sus relaciones (`ManyToOne` con Plan, `ManyToMany` con Clases).
-* Endpoint `POST /api/usuarios` funcional y testeado (devuelve `201 Created`).
-* *Nota: El módulo de Spring Security se encuentra temporalmente deshabilitado para facilitar la etapa actual de desarrollo y pruebas de los endpoints principales.*
+Entidades mapeadas con JPA incluyendo relaciones complejas:
+* `ManyToOne`: Usuarios asociados a un Plan.
+* `ManyToMany`: Usuarios inscriptos en múltiples Clases.
+
+## 🔐 Seguridad (JWT)
+
+* Endpoint público de login (`/api/auth/login`) para generar tokens JWT.
+* Endpoints protegidos (`/api/usuarios/**`) que requieren validación mediante `Bearer Token` en el header de autorización.
+* Filtro personalizado (`JwtRequestFilter`) para la gestión del ciclo de vida del token.
+
+## 🧪 Testing
+
+* Implementación de pruebas unitarias para aislar la lógica de negocio.
+* Uso de **Mockito** (`@Mock`, `@InjectMocks`) para simular la capa de datos (Repository y Mapper) y testear el `UsuarioService` con éxito.
