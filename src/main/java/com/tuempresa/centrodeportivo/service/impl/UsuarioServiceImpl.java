@@ -18,13 +18,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioMapper usuarioMapper;
 
     @Override
-    public List<UsuarioDTO> listarTodos() {
-        return usuarioRepository.findAll().stream()
-                .map(usuarioMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public UsuarioDTO guardar(UsuarioDTO usuarioDTO) {
         Usuario usuario = usuarioMapper.toEntity(usuarioDTO);
 
@@ -37,14 +30,45 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    public List<UsuarioDTO> obtenerTodos(String rol) {
+        List<Usuario> usuarios;
+        // Lógica para el Query Param: Si me pasan un rol, filtro. Si no, devuelvo
+        // todos.
+        if (rol != null && !rol.isEmpty()) {
+            usuarios = usuarioRepository.findByRol(rol);
+        } else {
+            usuarios = usuarioRepository.findAll();
+        }
+        return usuarios.stream()
+                .map(usuarioMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public UsuarioDTO obtenerPorId(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
         return usuarioMapper.toDTO(usuario);
     }
 
     @Override
+    public UsuarioDTO actualizar(Long id, UsuarioDTO usuarioDTO) {
+        Usuario usuarioExistente = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
+
+        usuarioExistente.setUsername(usuarioDTO.getUsername());
+        usuarioExistente.setEmail(usuarioDTO.getEmail());
+        usuarioExistente.setRol(usuarioDTO.getRol());
+
+        Usuario usuarioActualizado = usuarioRepository.save(usuarioExistente);
+        return usuarioMapper.toDTO(usuarioActualizado);
+    }
+
+    @Override
     public void eliminar(Long id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuario no encontrado con ID: " + id);
+        }
         usuarioRepository.deleteById(id);
     }
 }

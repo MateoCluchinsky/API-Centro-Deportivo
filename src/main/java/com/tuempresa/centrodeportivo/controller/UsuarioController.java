@@ -3,36 +3,47 @@ package com.tuempresa.centrodeportivo.controller;
 import com.tuempresa.centrodeportivo.dto.UsuarioDTO;
 import com.tuempresa.centrodeportivo.service.UsuarioService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController // Le dice a Spring que esta clase es una API REST
-@RequestMapping("/api/usuarios") // La URL base para este controlador
-@RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
-    @GetMapping
-    public ResponseEntity<List<UsuarioDTO>> listarTodos() {
-        return ResponseEntity.ok(usuarioService.listarTodos());
+    public UsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
+    // POST - Crear
+    @PostMapping
+    public ResponseEntity<UsuarioDTO> crear(@Valid @RequestBody UsuarioDTO usuarioDTO) {
+        return new ResponseEntity<>(usuarioService.guardar(usuarioDTO), HttpStatus.CREATED);
+    }
+
+    // GET - Obtener todos o filtrar por rol (Uso de Query Params)
+    @GetMapping
+    public ResponseEntity<List<UsuarioDTO>> obtenerTodos(@RequestParam(required = false) String rol) {
+        return ResponseEntity.ok(usuarioService.obtenerTodos(rol));
+    }
+
+    // GET - Obtener por ID (Uso de Path Variables)
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioDTO> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.obtenerPorId(id));
     }
 
-    @PostMapping
-    public ResponseEntity<UsuarioDTO> crear(@Valid @RequestBody UsuarioDTO usuarioDTO) {
-        // El @Valid activa las validaciones que pusimos en el DTO (@NotBlank, @Email)
-        return new ResponseEntity<>(usuarioService.guardar(usuarioDTO), HttpStatus.CREATED);
+    // PUT - Actualizar (Path Variable + Body validado)
+    @PutMapping("/{id}")
+    public ResponseEntity<UsuarioDTO> actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioDTO usuarioDTO) {
+        return ResponseEntity.ok(usuarioService.actualizar(id, usuarioDTO));
     }
 
+    // DELETE - Eliminar (Path Variable)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         usuarioService.eliminar(id);
